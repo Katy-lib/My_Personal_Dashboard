@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Personal Dashboard</title>
+
+<style>
+*{box-sizing:border-box;scroll-behavior:smooth}
+:root{
+    --bg:#fff7fa;--card:#fff;--soft:#fff0f6;--text:#173f3b;
+    --pink:#e88caf;--pink-dark:#d86f96;--muted:#80616e;
+    --border:#eadde3;--shadow:0 8px 25px rgba(200,100,150,.12);
+}
+body.dark{
+    --bg:#1d2022;--card:#292d30;--soft:#343035;--text:#f7f4f5;
+    --pink:#e88caf;--pink-dark:#f09abb;--muted:#d5bfc8;
+    --border:#4b4146;--shadow:0 8px 25px rgba(0,0,0,.25);
+}
+body{
+    margin:0;font-family:Arial,sans-serif;background:var(--bg);
+    color:var(--text);transition:.25s;
+}
+header{
+    margin:20px;height:300px;border-radius:25px;overflow:hidden;
+    background-image:url("https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=1400&q=80");
+    background-size:cover;background-position:center;display:flex;
+    justify-content:center;align-items:center;text-align:center;position:relative;
+}
+header:before{content:"";position:absolute;inset:0;background:rgba(255,170,205,.45)}
+.hero-text{position:relative;z-index:1;color:white;text-shadow:0 2px 5px #75445b}
+.hero-text h1{font-size:42px;margin:0 0 10px}
+.hero-text p{font-size:18px}
+nav{text-align:center;margin:20px}
+nav a,.action-btn{
+    display:inline-block;text-decoration:none;background:var(--pink);color:white;
+    padding:12px 20px;margin:5px;border:0;border-radius:20px;
+    font-weight:bold;cursor:pointer;transition:.2s
+}
+nav a:hover,.action-btn:hover{background:var(--pink-dark);transform:translateY(-1px)}
+.top-actions{text-align:center;margin:10px}
+.status-bar{
+    max-width:1100px;margin:10px auto;padding:12px 20px;text-align:center;
+    color:var(--muted);font-size:14px
+}
+.container{max-width:1100px;margin:auto;padding:10px 20px 40px}
+.card{
+    background:var(--card);border-radius:20px;padding:30px;margin:25px 0;
+    box-shadow:var(--shadow);border:1px solid var(--border)
+}
+.card h2{color:var(--pink-dark);margin-top:0;font-size:32px}
+.card>p{font-size:17px;margin-bottom:25px;color:var(--muted)}
+.cities{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.city{
+    background:var(--soft);padding:25px;border-radius:18px;
+    border:1px solid var(--border);min-height:180px
+}
+.city h3{color:var(--pink-dark);font-size:22px;margin-top:0}
+.weather{font-size:17px;line-height:1.8}
+.weather-icon{font-size:45px;margin-bottom:5px}
+.loading{color:var(--muted)}
+.error{
+    color:#b14b63;background:rgba(255,100,130,.08);
+    padding:12px;border-radius:12px;line-height:1.5
+}
+.search-box{
+    display:flex;gap:10px;max-width:650px;margin:0 auto 25px
+}
+.search-box input{
+    flex:1;padding:14px;border:1px solid var(--border);
+    border-radius:12px;font-size:16px;background:var(--card);color:var(--text)
+}
+.search-box button{margin:0;border-radius:12px}
+.search-result{
+    background:var(--soft);padding:20px;border-radius:16px;
+    text-align:center;display:none
+}
+.forecast{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:25px
+}
+.forecast-day{
+    background:var(--soft);padding:15px;border-radius:15px;text-align:center;
+    border:1px solid var(--border)
+}
+.forecast-day .icon{font-size:30px;margin:8px}
+.currency-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:20px}
+.currency-box{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:18px;padding:22px
+}
+.currency-box h3{margin:0 0 15px;font-size:18px;color:var(--text)}
+.currency-value{font-size:27px;font-weight:bold;color:var(--text)}
+.calculator{
+    margin-top:30px;background:var(--soft);padding:25px;
+    border-radius:20px;text-align:center
+}
+.calculator h3{color:var(--pink-dark);font-size:24px;margin-top:0}
+.calculator input{
+    width:220px;padding:14px;border:1px solid var(--border);
+    border-radius:12px;font-size:16px;background:var(--card);color:var(--text)
+}
+.calculation-results{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:25px
+}
+.calculation-results div{
+    background:var(--card);padding:18px;border-radius:15px;font-size:16px
+}
+.calculation-results span{
+    display:block;margin-top:8px;font-size:21px;font-weight:bold
+}
+.controls{
+    display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:20px 0
+}
+.toggle{
+    padding:9px 15px;border:1px solid var(--border);border-radius:20px;
+    background:var(--card);color:var(--text);cursor:pointer
+}
+.toggle.active{background:var(--pink);color:white;border-color:var(--pink)}
+.currency-source{text-align:center;margin-top:30px;color:var(--muted);font-size:14px}
+footer{text-align:center;padding:25px;color:var(--muted)}
+@media(max-width:800px){
+    .currency-grid{grid-template-columns:1fr 1fr}
+    .forecast{grid-template-columns:repeat(2,1fr)}
+    .calculation-results{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+    header{height:250px;margin:10px}
+    .hero-text h1{font-size:30px}
+    .cities{grid-template-columns:1fr}
+    .currency-grid{grid-template-columns:1fr}
+    nav a{padding:10px 15px}
+    .search-box{flex-direction:column}
+    .search-box button{width:100%}
+    .forecast{grid-template-columns:1fr 1fr}
+    .calculation-results{grid-template-columns:1fr}
+    .calculator input{width:100%;margin-bottom:10px}
+    .calculator .action-btn{width:100%;margin:0}
+}
+
+    /* Calculator */
+    .calculator-box {
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .calc-display {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 18px;
+      border: 2px solid var(--pink);
+      border-radius: 14px;
+      font-size: 28px;
+      text-align: right;
+      background: var(--card);
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .calc-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .calc-buttons button {
+      padding: 16px 8px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--soft-pink);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .calc-buttons button:hover {
+      transform: translateY(-1px);
+    }
+    .calc-buttons .operator {
+      background: var(--pink);
+      color: white;
+    }
+    .calc-buttons .clear {
+      background: #555;
+      color: white;
+    }
+    .calc-buttons .equal {
+      background: #d85b91;
+      color: white;
+    }
+
+    /* Dictionary */
+    .dictionary-box {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .dictionary-search {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .dictionary-search input {
+      flex: 1;
+      min-width: 0;
+      padding: 14px;
+      border: 2px solid var(--pink);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 16px;
+    }
+    .dictionary-search button {
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--pink);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .dictionary-result {
+      background: var(--soft-pink);
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 100px;
+    }
+    .dictionary-result h3 {
+      margin-top: 0;
+      color: var(--pink);
+      font-size: 28px;
+    }
+    .dictionary-result .part-of-speech {
+      font-style: italic;
+      opacity: .8;
+      margin-bottom: 8px;
+    }
+    .dictionary-result .definition {
+      margin: 10px 0;
+    }
+    .dictionary-result .example {
+      margin-top: 8px;
+      font-style: italic;
+      opacity: .85;
+    }
+    .dictionary-result audio {
+      width: 100%;
+      max-width: 320px;
+      margin-top: 10px;
+    }
+    .api-source {
+      font-size: 13px;
+      opacity: .7;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .dictionary-search {
+        flex-direction: column;
+      }
+      .dictionary-search button {
+        width: 100%;
+      }
+      .calc-buttons {
+        gap: 7px;
+      }
+      .calc-buttons button {
+        padding: 14px 5px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+<header>
+    <div class="hero-text">
+        <h1>☁️ My Personal Dashboard</h1>
+        <p>Weather • Time • Currency</p>
+    </div>
+</header>
+
+<nav>
+    <a href="#weather">🌤️ Weather</a>
+    <a href="#time">🕐 Time</a>
+    <a href="#currency">💰 Currency</a>
+</nav>
+
+<div class="top-actions">
+    <button class="action-btn" onclick="refreshDashboard()">🔄 Refresh Data</button>
+    <button class="action-btn" onclick="toggleTheme()">🌙 Dark / Light</button>
+</div>
+
+<div class="status-bar">
+    <span id="date">Loading date...</span>
+    &nbsp; • &nbsp;
+    Last updated: <span id="lastUpdated">Not yet</span>
+</div>
+
+<div class="container">
+
+<section class="card" id="weather">
+    <h2>🌤️ Weather</h2>
+    <p>Current weather and today's temperature range for four cities.</p>
+
+    <div class="controls">
+        <button id="celsiusBtn" class="toggle active" onclick="setUnit('C')">°C</button>
+        <button id="fahrenheitBtn" class="toggle" onclick="setUnit('F')">°F</button>
+    </div>
+
+    <div class="cities">
+        <div class="city"><h3>🇹🇭 Chiang Mai</h3><div class="weather" id="chiangMaiWeather"><span class="loading">Loading...</span></div></div>
+        <div class="city"><h3>🇲🇲 Yangon</h3><div class="weather" id="yangonWeather"><span class="loading">Loading...</span></div></div>
+        <div class="city"><h3>🇯🇵 Tokyo</h3><div class="weather" id="tokyoWeather"><span class="loading">Loading...</span></div></div>
+        <div class="city"><h3>🇰🇷 Seoul</h3><div class="weather" id="seoulWeather"><span class="loading">Loading...</span></div></div>
+    </div>
+
+    <div class="card" style="background:var(--soft);box-shadow:none;margin:25px 0 0;padding:25px">
+        <h3 style="color:var(--pink-dark);text-align:center">🔎 Search Another City</h3>
+        <div class="search-box">
+            <input id="citySearch" type="text" placeholder="Example: Bangkok">
+            <button class="action-btn" onclick="searchCity()">Search</button>
+        </div>
+        <div id="searchResult" class="search-result"></div>
+    </div>
+
+    <h3 style="color:var(--pink-dark);margin-top:30px">📅 5-Day Forecast — Chiang Mai</h3>
+    <div id="forecast" class="forecast"></div>
+</section>
+
+<section class="card" id="time">
+    <h2>🕐 World Time</h2>
+    <p>Current local time in each city.</p>
+    <div class="cities">
+        <div class="city"><h3>🇹🇭 Chiang Mai</h3><div class="weather" id="chiangMaiTime">Loading...</div></div>
+        <div class="city"><h3>🇲🇲 Yangon</h3><div class="weather" id="yangonTime">Loading...</div></div>
+        <div class="city"><h3>🇯🇵 Tokyo</h3><div class="weather" id="tokyoTime">Loading...</div></div>
+        <div class="city"><h3>🇰🇷 Seoul</h3><div class="weather" id="seoulTime">Loading...</div></div>
+    </div>
+</section>
+
+<section class="card" id="currency">
+    <h2>💰 Currency</h2>
+    <p>Live USD exchange rates for Thailand, Myanmar, Japan and Korea.</p>
+
+    <div class="currency-grid">
+        <div class="currency-box"><h3>1 USD → THB 🇹🇭</h3><div class="currency-value" id="usdThb">Loading...</div></div>
+        <div class="currency-box"><h3>1 USD → MMK 🇲🇲</h3><div class="currency-value" id="usdMmk">Loading...</div></div>
+        <div class="currency-box"><h3>1 USD → JPY 🇯🇵</h3><div class="currency-value" id="usdJpy">Loading...</div></div>
+        <div class="currency-box"><h3>1 USD → KRW 🇰🇷</h3><div class="currency-value" id="usdKrw">Loading...</div></div>
+    </div>
+
+    <div class="calculator">
+        <h3>💱 Currency Calculator</h3>
+        <p>Enter an amount in USD to calculate its value in each currency.</p>
+        <input type="number" id="usdAmount" value="1" min="0" step="0.01" oninput="calculateCurrency()">
+        <button class="action-btn" onclick="calculateCurrency()">Calculate</button>
+
+        <div class="calculation-results">
+            <div>🇹🇭 <b>THB</b><span id="calcThb">0.00 THB</span></div>
+            <div>🇲🇲 <b>MMK</b><span id="calcMmk">0.00 MMK</span></div>
+            <div>🇯🇵 <b>JPY</b><span id="calcJpy">0.00 JPY</span></div>
+            <div>🇰🇷 <b>KRW</b><span id="calcKrw">0.00 KRW</span></div>
+        </div>
+    </div>
+
+    <p class="currency-source">Currency data by ExchangeRate API</p>
+</section>
+
+</div>
+
+<footer>💗 My Personal Dashboard • Public Cloud Project</footer>
+
+<script>
+let exchangeRates = {};
+let temperatureUnit = "C";
+
+const cities = [
+    {id:"chiangMaiWeather",lat:18.7883,lon:98.9853},
+    {id:"yangonWeather",lat:16.8661,lon:96.1561},
+    {id:"tokyoWeather",lat:35.6762,lon:139.6503},
+    {id:"seoulWeather",lat:37.5665,lon:126.9780}
+];
+
+function showDate(){
+    document.getElementById("date").textContent =
+        new Date().toLocaleDateString("en-US",{
+            weekday:"long",year:"numeric",month:"long",day:"numeric"
+        });
+}
+
+function updateTime(){
+    const zones = {
+        chiangMaiTime:"Asia/Bangkok",
+        yangonTime:"Asia/Yangon",
+        tokyoTime:"Asia/Tokyo",
+        seoulTime:"Asia/Seoul"
+    };
+
+    for(const id in zones){
+        document.getElementById(id).textContent =
+            "🕐 " + new Date().toLocaleTimeString("en-US",{
+                timeZone:zones[id],hour:"2-digit",minute:"2-digit",second:"2-digit"
+            });
+    }
+}
+
+function cToF(c){ return (c * 9/5) + 32; }
+
+function weatherIcon(code){
+    if(code === 0) return "☀️";
+    if(code <= 3) return "🌤️";
+    if(code <= 48) return "🌫️";
+    if(code <= 67) return "🌧️";
+    if(code <= 82) return "🌦️";
+    return "⛈️";
+}
+
+function displayTemp(c){
+    return temperatureUnit === "C"
+        ? c.toFixed(1) + "°C"
+        : cToF(c).toFixed(1) + "°F";
+}
+
+async function getWeather(lat,lon,elementId){
+    const element = document.getElementById(elementId);
+    element.innerHTML = '<span class="loading">Loading weather...</span>';
+
+    try{
+        const url =
+            "https://api.open-meteo.com/v1/forecast" +
+            "?latitude=" + lat +
+            "&longitude=" + lon +
+            "&current=temperature_2m,weather_code" +
+            "&daily=temperature_2m_max,temperature_2m_min" +
+            "&timezone=auto";
+
+        const response = await fetch(url);
+        if(!response.ok) throw new Error("Weather API request failed");
+
+        const data = await response.json();
+        const temp = data.current.temperature_2m;
+        const code = data.current.weather_code;
+        const max = data.daily.temperature_2m_max[0];
+        const min = data.daily.temperature_2m_min[0];
+
+        element.innerHTML =
+            "<div class='weather-icon'>" + weatherIcon(code) + "</div>" +
+            "Temperature: <b>" + displayTemp(temp) + "</b><br>" +
+            "Today: " + displayTemp(min) + " - " + displayTemp(max);
+    }catch(error){
+        element.innerHTML =
+            "<div class='error'>⚠️ Weather data unavailable.<br>" +
+            "Please check your connection and try again.</div>";
+    }
+}
+
+async function getForecast(){
+    const box = document.getElementById("forecast");
+    box.innerHTML = '<div class="loading">Loading forecast...</div>';
+
+    try{
+        const response = await fetch(
+            "https://api.open-meteo.com/v1/forecast" +
+            "?latitude=18.7883&longitude=98.9853" +
+            "&daily=weather_code,temperature_2m_max,temperature_2m_min" +
+            "&forecast_days=5&timezone=auto"
+        );
+        if(!response.ok) throw new Error("Forecast request failed");
+
+        const data = await response.json();
+        box.innerHTML = "";
+
+        for(let i=0;i<5;i++){
+            const day = new Date(data.daily.time[i] + "T12:00:00");
+            const name = day.toLocaleDateString("en-US",{weekday:"short"});
+            box.innerHTML +=
+                "<div class='forecast-day'>" +
+                "<b>" + name + "</b>" +
+                "<div class='icon'>" + weatherIcon(data.daily.weather_code[i]) + "</div>" +
+                "<div>" + displayTemp(data.daily.temperature_2m_max[i]) + "</div>" +
+                "<small>" + displayTemp(data.daily.temperature_2m_min[i]) + "</small>" +
+                "</div>";
+        }
+    }catch(error){
+        box.innerHTML =
+            "<div class='error'>⚠️ Forecast unavailable. Please try again.</div>";
+    }
+}
+
+async function searchCity(){
+    const input = document.getElementById("citySearch").value.trim();
+    const result = document.getElementById("searchResult");
+
+    if(!input){
+        result.style.display = "block";
+        result.innerHTML = "Please enter a city name.";
+        return;
+    }
+
+    result.style.display = "block";
+    result.innerHTML = "🔎 Searching...";
+
+    try{
+        const response = await fetch(
+            "https://geocoding-api.open-meteo.com/v1/search?name=" +
+            encodeURIComponent(input) + "&count=1&language=en&format=json"
+        );
+        if(!response.ok) throw new Error("Search failed");
+
+        const data = await response.json();
+        if(!data.results || data.results.length === 0){
+            throw new Error("City not found");
+        }
+
+        const city = data.results[0];
+        const weatherResponse = await fetch(
+            "https://api.open-meteo.com/v1/forecast" +
+            "?latitude=" + city.latitude +
+            "&longitude=" + city.longitude +
+            "&current=temperature_2m,weather_code" +
+            "&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
+        );
+        if(!weatherResponse.ok) throw new Error("Weather request failed");
+
+        const weather = await weatherResponse.json();
+
+        result.innerHTML =
+            "<h3 style='color:var(--pink-dark)'>" +
+            "📍 " + city.name + (city.country ? ", " + city.country : "") +
+            "</h3>" +
+            "<div class='weather-icon'>" + weatherIcon(weather.current.weather_code) + "</div>" +
+            "<b>" + displayTemp(weather.current.temperature_2m) + "</b><br>" +
+            "Today: " + displayTemp(weather.daily.temperature_2m_min[0]) +
+            " - " + displayTemp(weather.daily.temperature_2m_max[0]);
+    }catch(error){
+        result.innerHTML =
+            "<div class='error'>⚠️ Could not find weather for that city.<br>" +
+            "Please check the spelling and try again.</div>";
+    }
+}
+
+async function getCurrency(){
+    const ids = ["usdThb","usdMmk","usdJpy","usdKrw"];
+    ids.forEach(id => document.getElementById(id).textContent = "Loading...");
+
+    try{
+        const response = await fetch("https://open.er-api.com/v6/latest/USD");
+        if(!response.ok) throw new Error("Currency API request failed");
+
+        const data = await response.json();
+        exchangeRates = data.rates;
+
+        document.getElementById("usdThb").textContent = exchangeRates.THB.toFixed(2) + " THB";
+        document.getElementById("usdMmk").textContent = exchangeRates.MMK.toFixed(2) + " MMK";
+        document.getElementById("usdJpy").textContent = exchangeRates.JPY.toFixed(2) + " JPY";
+        document.getElementById("usdKrw").textContent = exchangeRates.KRW.toFixed(2) + " KRW";
+
+        calculateCurrency();
+    }catch(error){
+        ids.forEach(id =>
+            document.getElementById(id).innerHTML =
+            "<span class='error'>Unavailable</span>"
+        );
+    }
+}
+
+function calculateCurrency(){
+    const amount = Number(document.getElementById("usdAmount").value);
+
+    if(!Number.isFinite(amount) || amount < 0 || !exchangeRates.THB){
+        return;
+    }
+
+    document.getElementById("calcThb").textContent =
+        (amount * exchangeRates.THB).toFixed(2) + " THB";
+    document.getElementById("calcMmk").textContent =
+        (amount * exchangeRates.MMK).toFixed(2) + " MMK";
+    document.getElementById("calcJpy").textContent =
+        (amount * exchangeRates.JPY).toFixed(2) + " JPY";
+    document.getElementById("calcKrw").textContent =
+        (amount * exchangeRates.KRW).toFixed(2) + " KRW";
+}
+
+function setUnit(unit){
+    temperatureUnit = unit;
+
+    document.getElementById("celsiusBtn").classList.toggle("active",unit === "C");
+    document.getElementById("fahrenheitBtn").classList.toggle("active",unit === "F");
+
+    loadWeather();
+}
+
+function toggleTheme(){
+    document.body.classList.toggle("dark");
+    localStorage.setItem(
+        "dashboardTheme",
+        document.body.classList.contains("dark") ? "dark" : "light"
+    );
+}
+
+async function loadWeather(){
+    cities.forEach(city => getWeather(city.lat,city.lon,city.id));
+    getForecast();
+}
+
+async function refreshDashboard(){
+    const button = document.querySelector(".top-actions .action-btn");
+    button.textContent = "⏳ Refreshing...";
+    button.disabled = true;
+
+    await Promise.all([loadWeather(),getCurrency()]);
+
+    document.getElementById("lastUpdated").textContent =
+        new Date().toLocaleTimeString("en-US",{
+            hour:"2-digit",minute:"2-digit",second:"2-digit"
+        });
+
+    button.textContent = "🔄 Refresh Data";
+    button.disabled = false;
+}
+
+showDate();
+updateTime();
+setInterval(updateTime,1000);
+
+if(localStorage.getItem("dashboardTheme") === "dark"){
+    document.body.classList.add("dark");
+}
+
+refreshDashboard();
+
+document.getElementById("citySearch").addEventListener("keydown",function(event){
+    if(event.key === "Enter") searchCity();
+});
+
+    // ---------------- CALCULATOR ----------------
+    let calcCurrent = "0";
+    let calcPrevious = null;
+    let calcOperator = null;
+    let calcWaiting = false;
+
+    function updateCalculator() {
+      document.getElementById("calcDisplay").value = calcCurrent;
+    }
+
+    function appendNumber(number) {
+      if (calcWaiting) {
+        calcCurrent = number === "." ? "0." : number;
+        calcWaiting = false;
+      } else if (number === "." && calcCurrent.includes(".")) {
+        return;
+      } else if (calcCurrent === "0" && number !== ".") {
+        calcCurrent = number;
+      } else {
+        calcCurrent += number;
+      }
+      updateCalculator();
+    }
+
+    function chooseOperator(operator) {
+      if (calcOperator && calcWaiting) {
+        calcOperator = operator;
+        return;
+      }
+
+      if (calcPrevious !== null && calcOperator) {
+        calculateResult();
+      }
+
+      calcPrevious = parseFloat(calcCurrent);
+      calcOperator = operator;
+      calcWaiting = true;
+    }
+
+    function calculateResult() {
+      if (calcPrevious === null || !calcOperator) return;
+
+      const current = parseFloat(calcCurrent);
+      let result;
+
+      if (calcOperator === "+") result = calcPrevious + current;
+      if (calcOperator === "-") result = calcPrevious - current;
+      if (calcOperator === "*") result = calcPrevious * current;
+      if (calcOperator === "/") {
+        if (current === 0) {
+          calcCurrent = "Cannot divide by 0";
+          calcPrevious = null;
+          calcOperator = null;
+          calcWaiting = true;
+          updateCalculator();
+          return;
+        }
+        result = calcPrevious / current;
+      }
+      if (calcOperator === "%") result = calcPrevious % current;
+
+      calcCurrent = String(Number(result.toFixed(10)));
+      calcPrevious = null;
+      calcOperator = null;
+      calcWaiting = true;
+      updateCalculator();
+    }
+
+    function clearCalculator() {
+      calcCurrent = "0";
+      calcPrevious = null;
+      calcOperator = null;
+      calcWaiting = false;
+      updateCalculator();
+    }
+
+    function deleteCalculator() {
+      if (calcWaiting || calcCurrent === "Cannot divide by 0") return;
+      calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : "0";
+      updateCalculator();
+    }
+
+    // ---------------- DICTIONARY ----------------
+    async function searchDictionary() {
+      const input = document.getElementById("dictionaryInput");
+      const resultBox = document.getElementById("dictionaryResult");
+      const word = input.value.trim();
+
+      if (!word) {
+        resultBox.innerHTML = "<p>Please enter a word.</p>";
+        return;
+      }
+
+      resultBox.innerHTML = "<p>Searching...</p>";
+
+      try {
+        const response = await fetch(
+          "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(word)
+        );
+
+        if (!response.ok) {
+          throw new Error("Word not found");
+        }
+
+        const data = await response.json();
+        const entry = data[0];
+        const phonetic = entry.phonetic || "";
+        const audio =
+          (entry.phonetics || []).find(p => p.audio)?.audio || "";
+
+        let content = "<h3>" + escapeHtml(entry.word) + "</h3>";
+
+        if (phonetic) {
+          content += "<p><strong>Pronunciation:</strong> " + escapeHtml(phonetic) + "</p>";
+        }
+
+        let shown = 0;
+
+        for (const meaning of entry.meanings || []) {
+          content += "<p class='part-of-speech'>" +
+            escapeHtml(meaning.partOfSpeech || "") + "</p>";
+
+          for (const definition of meaning.definitions || []) {
+            content += "<div class='definition'>• " +
+              escapeHtml(definition.definition || "") + "</div>";
+
+            if (definition.example) {
+              content += "<div class='example'>Example: \"" +
+                escapeHtml(definition.example) + "\"</div>";
+            }
+
+            shown++;
+            if (shown >= 5) break;
+          }
+
+          if (shown >= 5) break;
+        }
+
+        if (audio) {
+          content += "<audio controls src='" + audio + "'></audio>";
+        }
+
+        resultBox.innerHTML = content;
+      } catch (error) {
+        resultBox.innerHTML =
+          "<p><strong>Sorry, we couldn't find that word.</strong></p>" +
+          "<p>Please check the spelling or try another English word.</p>";
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, function(char) {
+        const chars = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        };
+        return chars[char];
+      });
+    }
+
+    document.getElementById("dictionaryInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") searchDictionary();
+    });
+
+</script>
+</body>
+</html>
